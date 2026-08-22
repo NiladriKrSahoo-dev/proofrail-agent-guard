@@ -6,6 +6,7 @@ export interface Step {
 
 export interface ScenarioBenchmarkItem {
   id: string;
+  split: "dev" | "val" | "test";
   sector: "legal" | "healthcare" | "finops" | "support";
   title: string;
   description: string;
@@ -30,13 +31,18 @@ function createScenarios(): ScenarioBenchmarkItem[] {
     // Generate 30 scenarios per sector = 120 total
     for (let i = 1; i <= 30; i++) {
       count++;
+      
+      // Partition: 1..60 -> dev (50%), 61..90 -> val (25%), 91..120 -> test (25%)
+      let split: "dev" | "val" | "test" = "dev";
+      if (count > 90) {
+        split = "test";
+      } else if (count > 60) {
+        split = "val";
+      }
+
       const severity = severities[(i - 1) % severities.length];
       
       // Determine ground truth failure modes
-      // i % 3 === 0 -> Clean pass
-      // i % 3 === 1 -> Deterministic tool sequence violation
-      // i % 3 === 2 -> Bounded semantic policy violation
-      // i % 5 === 0 -> Ambiguous boundary (requires human review)
       const isClean = i % 3 === 0;
       const deterministicViolation = !isClean && (i % 2 === 1);
       const semanticViolation = !isClean && (!deterministicViolation || i % 4 === 0);
@@ -185,6 +191,7 @@ function createScenarios(): ScenarioBenchmarkItem[] {
 
       items.push({
         id: `sc-bench-${count}`,
+        split,
         sector,
         title,
         description,

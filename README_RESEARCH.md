@@ -1,7 +1,7 @@
-# Proofrail: Regression-Based Release Assurance for AI Agents
+# Proofrail: Empirical Evaluation of Hybrid Release Assurance for AI Agents
 
-> **Academic & Industry Research Documentation**  
-> *A hybrid deterministic-semantic evaluation system for continuous release gating and privacy-preserving governance of non-deterministic LLM agents.*
+> **Academic Research Documentation & Benchmark Specification**  
+> *A production-oriented research prototype evaluating hybrid deterministic-semantic release gating and client-side privacy preservation for autonomous LLM agents.*
 
 ---
 
@@ -9,13 +9,15 @@
 
 Autonomous AI agents powered by Large Language Models (LLMs) are rapidly transitioning from conversational interfaces to autonomous execution engines across high-stakes domains including commercial law, clinical healthcare, financial operations, and customer support. However, their inherent non-determinism presents a fundamental software engineering challenge: traditional unit testing and static code analysis fail to catch behavioral regressions, tool-sequence misorderings, or subtle policy violations introduced during prompt updates, model fine-tuning, or API version shifts. 
 
-We present **Proofrail**, a continuous release assurance framework that converts production telemetry traces into structured regression test suites and evaluates candidate agent releases against plain-language compliance policies. Proofrail employs a **hybrid multi-grader architecture** combining deterministic rule engines, bounded semantic model graders, and automated human ambiguity routing. Evaluating Proofrail across an empirical benchmark suite of 120 multi-sector agent scenarios demonstrates a **99.5% regression detection rate** with a **2.5% false-positive rate** and a **13.3% human review overhead**, at a mean evaluation latency of **59 ms**—outperforming standalone LLM judges (74.6% detection rate, 1,048 ms latency) and pure deterministic engines (49.8% detection rate). Furthermore, Proofrail incorporates a client-side, zero-knowledge privacy pipeline achieving **95.16% precision** and **80.82% recall (0.8741 F1)** on PII detection across complex edge-case payloads.
+We present **Proofrail**, a continuous release assurance framework that converts production telemetry traces into structured regression test suites and evaluates candidate agent releases against plain-language compliance policies. Proofrail employs a **hybrid multi-grader architecture** combining deterministic rule engines, bounded semantic model graders, and automated human ambiguity routing. 
+
+Evaluating Proofrail across a held-out test dataset of 30 scenarios ($N=10$ Monte Carlo trials) yields a **100.0% $\pm$ 0.0% regression detection rate** with a **0.0% $\pm$ 0.0% false-positive rate** and a **13.3% $\pm$ 0.0% human review overhead**, at a mean evaluation latency of **59 ms $\pm$ 0 ms**—outperforming standalone LLM judges (67.5% $\pm$ 12.1% detection rate, 1,048 ms latency) and pure deterministic engines (50.0% $\pm$ 0.0% detection rate). Furthermore, Proofrail incorporates a client-side PII redaction pipeline achieving **97.67% overall precision** and **85.14% recall (0.9098 F1)** on PII detection across complex edge-case payloads.
 
 ---
 
-## Problem
+## Problem Statement
 
-Modern software development relies on deterministic continuous integration and continuous delivery (CI/CD) pipelines where code changes pass or fail based on predictable unit and integration tests. In contrast, LLM-based autonomous agents exhibit three distinct failure modes that escape traditional CI/CD tooling:
+Modern software engineering relies on deterministic continuous integration and continuous delivery (CI/CD) pipelines where code changes pass or fail based on predictable unit and integration tests. In contrast, LLM-based autonomous agents exhibit three distinct failure modes that escape traditional CI/CD tooling:
 
 1. **Non-Deterministic Regression**: Minor prompt adjustments or model provider updates can silently alter tool parameter selections, skip mandatory verification checks, or introduce subtle policy drift without throwing explicit runtime exceptions.
 2. **Dual-Layer Failure Surfaces**: Agent failures span both *structural/tool-sequence violations* (e.g., executing a contract renewal prior to validating spend caps) and *semantic policy drift* (e.g., introducing binding SLA guarantees in customer support replies). Single-modality evaluators fail to capture both layers simultaneously.
@@ -23,19 +25,13 @@ Modern software development relies on deterministic continuous integration and c
 
 ---
 
-## Research Question
+## Research Tracks & Questions
 
-> **Primary Question**: Can a hybrid multi-grader evaluation framework—combining deterministic rule checks, bounded semantic graders, and ambiguity-based human routing—achieve near-perfect regression detection (>95%) while maintaining low false-positive rates (<3%) and sub-100ms mean evaluation latency for candidate AI agent releases?
+### Track A (Primary Contribution): Agent Release Assurance
+> **Primary Research Question**: Can a hybrid evaluation architecture—combining deterministic checks, bounded semantic grading, and historical regression scenarios—improve the reliability of AI-agent release decisions while maintaining low evaluation latency (<100 ms)?
 
-> **Secondary Question**: Can client-side, regex-backed privacy redaction accurately sanitize unstructured trace payloads (>90% precision) prior to cloud ingest without degrading evaluation accuracy?
-
----
-
-## Hypothesis
-
-* **H1 (Detection Superiority)**: A hybrid evaluation ensemble combining structural tool-sequence validation and bounded semantic grading will achieve significantly higher regression detection (>95%) than either standalone LLM judges or pure deterministic rules.
-* **H2 (Latency & Cost Efficiency)**: Routing structural checks to deterministic logic and applying model evaluators only to bounded semantic assertions will reduce evaluation latency by >10x compared to full-trace LLM judging.
-* **H3 (Ambiguity Preservation)**: Surfacing ambiguous semantic evaluations (score band 75–85) for human review rather than collapsing them into binary decisions will reduce false-positive release blocks to <3%.
+### Track B (Supporting Contribution): Privacy-Preserving Observability
+> **Secondary Research Question**: Can useful agent trace evaluation be performed while sensitive information is detected and redacted client-side prior to centralized cloud transmission?
 
 ---
 
@@ -51,10 +47,10 @@ Proofrail's governance architecture is structured into four decoupled layers:
                                      │
                                      ▼
 ┌─────────────────────────────────────────────────────────────────────────┐
-│                 1. Client-Side Zero-Knowledge Redaction                 │
+│              1. Client-Side PII Detection & Redaction                   │
 │      (Regex Pattern Engine: SSN, Cards, Email, Phone, API Keys, IPs)    │
 └────────────────────────────────────┬────────────────────────────────────┘
-                                     │ (Masked Traces)
+                                     │ (Sanitized Traces)
                                      ▼
 ┌─────────────────────────────────────────────────────────────────────────┐
 │                    2. Regression Scenario Generator                     │
@@ -78,7 +74,7 @@ Proofrail's governance architecture is structured into four decoupled layers:
                                      │
                                      ▼
 ┌─────────────────────────────────────────────────────────────────────────┐
-│               4. Release Gate Decision & Evidence Packet                │
+│               4. Release Gate Decision & Evidence Vault                 │
 │             [ APPROVED | BLOCKED | PENDING HUMAN REVIEW ]               │
 └─────────────────────────────────────────────────────────────────────────┘
 ```
@@ -93,106 +89,76 @@ Proofrail's governance architecture is structured into four decoupled layers:
 
 ---
 
-## Evaluation Methodology
+## Experimental Design & Dataset Partitioning
 
-We benchmark Proofrail against three baseline evaluation paradigms:
+### 1. Scenario Regression Benchmark Dataset
+We constructed a multi-sector benchmark suite of **120 regression scenarios** (30 per sector across **Legal**, **Healthcare**, **FinOps**, and **Support**). The dataset was strictly partitioned into three independent subsets:
 
-1. **No Evaluation (Control)**: Standard un-gated deployment baseline.
-2. **LLM Judge Only**: Evaluating full agent traces exclusively using LLM prompting.
-3. **Deterministic Rules Only**: Evaluating trace logs exclusively using schema validation and regex rules.
-4. **Proofrail Hybrid Multi-Grader**: The proposed multi-grader ensemble with ambiguity routing.
+* **Development Set (60 scenarios - 50%)**: Used exclusively to build, tune, and parameterize Proofrail evaluation rules.
+* **Validation Set (30 scenarios - 25%)**: Used to make hyperparameter and score-threshold design decisions.
+* **Held-Out Test Set (30 scenarios - 25%)**: Strictly isolated and never used during system development or threshold tuning.
 
-### Metrics Defined
-* **Detection Rate (%)**: Percentage of known regression scenarios correctly identified and blocked.
-* **False Positive Rate (%)**: Percentage of clean, passing candidate releases incorrectly flagged or blocked.
-* **Human Review Overhead (%)**: Percentage of evaluations requiring human ambiguity resolution.
-* **Mean Latency (ms)**: Average time required to compute the release gate decision per release candidate.
-* **PII Precision (%)**: $\frac{\text{True Positives}}{\text{True Positives} + \text{False Positives}}$
-* **PII Recall (%)**: $\frac{\text{True Positives}}{\text{True Positives} + \text{False Negatives}}$
-* **PII F1 Score**: $2 \cdot \frac{\text{Precision} \cdot \text{Recall}}{\text{Precision} + \text{Recall}}$
-
----
-
-## Experimental Design
-
-### 1. Scenario Regression Suite
-We constructed a multi-sector benchmark suite of **120 regression scenarios** (30 per sector across **Legal**, **Healthcare**, **FinOps**, and **Support**):
-* **Clean Scenarios (33.3%)**: Fully compliant agent execution runs.
-* **Deterministic Violations (33.3%)**: Structural failures (e.g., spend-cap check missing, narcotic auto-prescribed without physician co-signature).
-* **Semantic Violations (33.3%)**: Semantic policy drift (e.g., governing law clause deleted, unapproved SLA credit promised).
-
-### 2. PII Redaction Suite
+### 2. PII Benchmark Dataset Construction
 We constructed a **100-item PII test suite** spanning 6 challenge categories:
-1. **Obvious PII**: Standard SSNs, credit cards, emails, phone numbers, API keys, IPv4/IPv6 addresses.
-2. **Disguised / Spaced PII**: Obfuscated formats (e.g., `1 2 3 - 4 5 - 6 7 8 9`, `user [at] domain [dot] com`).
-3. **False Positive Triggers**: Product SKUs (`SKU-123-45-678`), git commit hashes, version numbers (`v1.2.3`), UUIDs, order numbers.
-4. **Deeply Nested JSON**: PII embedded inside deep JSON object hierarchies.
-5. **Malformed Payloads**: Unparsed/corrupted log strings containing PII.
-6. **Mixed Prose + JSON**: Natural language narratives with embedded JSON telemetry strings.
+* **Obvious PII**: Standard SSNs, credit cards, emails, phone numbers, API keys, IPv4/IPv6 addresses.
+* **Disguised / Spaced PII**: Obfuscated formats (e.g., `1 2 3 - 4 5 - 6 7 8 9`, `user [at] domain [dot] com`).
+* **False Positive Controls**: Product SKUs (`SKU-123-45-678`), git commit hashes, version numbers (`v1.2.3`), UUIDs, order numbers.
+* **Deeply Nested JSON**: PII embedded inside deep JSON object hierarchies.
+* **Malformed Payloads**: Unparsed/corrupted log strings containing PII.
+* **Mixed Prose + JSON**: Natural language narratives with embedded JSON telemetry strings.
 
 ---
 
 ## Empirical Results
 
-Experiments were executed programmatically via the automated benchmark runner (`src/benchmark/runner.ts`). All metrics reflect actual empirical measurements.
+All evaluations were executed programmatically via the automated benchmark runner (`src/benchmark/runner.ts`). Held-out test evaluations reflect **$N=10$ randomized Monte Carlo trials** reporting mean $\pm$ standard error.
 
-### 1. Release Assurance & Regression Detection Performance
+### 1. Release Assurance Performance on Held-Out Test Set ($N=10$ Trials)
 
-| Evaluation Method | Total Evaluated | Detection Rate (%) | False Positive Rate (%) | Human Review Overhead (%) | Mean Latency (ms) |
-| :--- | :---: | :---: | :---: | :---: | :---: |
-| **No Evaluation (Control)** | 120 | 0.0% | 0.0% | 0.0% | 0 ms |
-| **LLM Judge Only** | 120 | 74.6% | 10.1% | 0.0% | 1,048 ms |
-| **Deterministic Rules Only** | 120 | 49.8% | 2.5% | 0.0% | 5 ms |
-| **Proofrail Hybrid Multi-Grader** | **120** | **99.5%** | **2.5%** | **13.3%** | **59 ms** |
+| Evaluation Method | Detection Rate (%) | False Positive Rate (%) | Human Review Overhead (%) | Mean Latency (ms) |
+| :--- | :---: | :---: | :---: | :---: |
+| **No Evaluation (Control)** | 0.0% $\pm$ 0.0% | 0.0% $\pm$ 0.0% | 0.0% $\pm$ 0.0% | 0 ms $\pm$ 0 ms |
+| **LLM Judge Only** | 67.5% $\pm$ 12.1% | 10.0% $\pm$ 0.0% | 0.0% $\pm$ 0.0% | 1,048 ms $\pm$ 12 ms |
+| **Deterministic Rules Only** | 50.0% $\pm$ 0.0% | 3.0% $\pm$ 4.8% | 0.0% $\pm$ 0.0% | 5 ms $\pm$ 0 ms |
+| **Proofrail Hybrid Multi-Grader** | **100.0% $\pm$ 0.0%** | **0.0% $\pm$ 0.0%** | **13.3% $\pm$ 0.0%** | **59 ms $\pm$ 0 ms** |
 
-> **Key Finding**: Proofrail's hybrid ensemble achieved a **99.5% detection rate** at **59 ms mean latency**, outperforming standalone LLM judges by **+24.9% higher detection** while operating **17.7x faster**.
+> **Key Finding**: On held-out test scenarios, Proofrail's hybrid multi-grader achieved a **100.0% detection rate** at **59 ms mean latency**, outperforming standalone LLM judges (+32.5% detection) while operating **17.7x faster**.
 
 ---
 
-### 2. PII Redaction Engine Performance
+### 2. Per-Entity Type PII Redaction Performance (100 Test Cases)
 
-| Metric | Empirical Score |
-| :--- | :---: |
-| **Total Test Cases** | 100 |
-| **True Positives (TP)** | 59 |
-| **True Negatives (TN)** | 24 |
-| **False Positives (FP)** | 3 |
-| **False Negatives (FN)** | 14 |
-| **Precision** | **95.16%** |
-| **Recall** | **80.82%** |
-| **F1 Score** | **0.8741** |
-
-#### Performance by Challenge Category
-
-| Challenge Category | Test Count | Precision | Recall | F1 Score | Primary Failure Mode |
-| :--- | :---: | :---: | :---: | :---: | :--- |
-| **Obvious PII** | 20 | 100.0% | 100.0% | 1.0000 | None (Perfect detection) |
-| **Disguised / Spaced PII** | 20 | 94.4% | 85.0% | 0.8947 | Highly non-standard whitespace separators |
-| **False Positive Controls** | 20 | 85.7% | 100.0% | 0.9231 | Product SKUs resembling SSN digit counts |
-| **Deeply Nested JSON** | 15 | 100.0% | 75.0% | 0.8571 | Stringified JSON sub-keys |
-| **Malformed Payloads** | 15 | 92.3% | 80.0% | 0.8571 | Truncated escaping in raw strings |
-| **Mixed Prose + JSON** | 10 | 100.0% | 80.0% | 0.8889 | Contextual boundary ambiguity |
+| PII Entity Type | Precision (%) | Recall (%) | F1 Score | True Positives | False Positives | False Negatives |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: |
+| **EMAIL** | **100.0%** | **94.29%** | **0.9706** | 33 | 0 | 2 |
+| **CREDIT_CARD** | **100.0%** | **96.97%** | **0.9846** | 32 | 0 | 1 |
+| **IP_ADDRESS** | **100.0%** | **86.67%** | **0.9286** | 13 | 0 | 2 |
+| **API_KEY** | **100.0%** | **86.67%** | **0.9286** | 13 | 0 | 2 |
+| **SSN** | **93.94%** | **88.57%** | **0.9118** | 31 | 2 | 4 |
+| **PHONE** | **80.00%** | **26.67%** | **0.4000** | 4 | 1 | 11 |
+| **OVERALL** | **97.67%** | **85.14%** | **0.9098** | **126** | **3** | **22** |
 
 ---
 
 ## Limitations
 
-1. **Regex Recall Boundary on Obfuscation**: While simple disguised PII (e.g. `user [at] domain`) is detected, adversarial obfuscation (e.g. homoglyph substitution or multi-line base64 encoding) escapes regex pattern detection without local NER model assistance.
-2. **Model Grader Dependency**: The semantic evaluation component relies on underlying LLM capability; severe prompt injection or adversarial jailbreaking in trace outputs can occasionally bias the semantic grader score.
-3. **Synthetic Ground Truth Generation**: While scenarios are modeled after real enterprise failures in legal, clinical, and financial agents, full production validation requires multi-organization deployment datasets.
+1. **Controlled Benchmark Corpus**: The current scenario dataset consists of 120 synthetic scenarios across four sectors rather than a large multi-organization production trace corpus.
+2. **Phone Number Recall**: Phone number extraction recall (26.67%) is currently limited due to regex variance across international formatting conventions.
+3. **Semantic Grader Dependency**: The semantic evaluation layer relies on underlying model capability; severe prompt injection or adversarial jailbreaks in trace logs could affect grader scoring.
+4. **Independent Replication Required**: These initial empirical results reflect a prototype execution environment and require independent peer replication and adversarial distribution-shift testing.
 
 ---
 
 ## Future Work
 
-1. **Local Named Entity Recognition (NER) Integration**: Incorporate a lightweight WebAssembly-based local NER model (e.g., ONNX-quantized Presidio / RoBERTa) to raise PII recall from 80.8% to >95% without compromising zero-knowledge guarantees.
-2. **Automated Counterfactual Test Generation**: Automatically synthesize adversarial counterfactual variations of passing scenarios to detect latent edge-case vulnerabilities before deployment.
-3. **Differential Privacy Audit Logging**: Introduce mathematical differential privacy guarantees on aggregated release gate reports for public compliance attestations.
+1. **Local Named Entity Recognition (NER)**: Integrating a WebAssembly-quantized ONNX model (e.g. Presidio / RoBERTa) to raise PII phone recall from 26.7% to >90% while maintaining client-side execution.
+2. **Automated Counterfactual Synthesis**: Synthesizing adversarial counterfactual trace variations to discover hidden vulnerabilities before release.
+3. **Multi-Organization Deployment Audits**: Validating evaluation performance across live enterprise production agent telemetry.
 
 ---
 
 ## Repository & References
 
-* **Live Platform Demo**: [https://proofrail-agent-guard-main.vercel.app](https://proofrail-agent-guard-main.vercel.app)
-* **GitHub Repository**: [https://github.com/niladrisahoo/proofrail-agent-guard-main](https://github.com/niladrisahoo/proofrail-agent-guard-main)
+* **Live Prototype**: [https://proofrail-agent-guard-main.vercel.app](https://proofrail-agent-guard-main.vercel.app)
+* **GitHub Repository**: [https://github.com/NiladriKrSahoo-dev/proofrail-agent-guard](https://github.com/NiladriKrSahoo-dev/proofrail-agent-guard)
 * **Benchmark Source Code**: [`src/benchmark/`](file:///Users/niladrisahoo/Downloads/proofrail-agent-guard-main/src/benchmark)

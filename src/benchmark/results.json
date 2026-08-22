@@ -1,112 +1,100 @@
 {
-  "executedAt": "2026-08-22T08:51:48.106Z",
-  "regressionBenchmark": {
-    "totalScenarios": 120,
-    "sectors": [
-      "legal",
-      "healthcare",
-      "finops",
-      "support"
-    ],
-    "methods": [
+  "executedAt": "2026-08-22T09:19:20.180Z",
+  "datasetSplits": {
+    "devCount": 60,
+    "valCount": 30,
+    "testCount": 30,
+    "totalScenarios": 120
+  },
+  "heldOutTestEvaluationMonteCarloN10": [
+    {
+      "method": "No evaluation (Baseline control)",
+      "detectionRate": "0.0% ± 0.0%",
+      "falsePositiveRate": "0.0% ± 0.0%",
+      "humanReviewOverhead": "0.0% ± 0.0%",
+      "meanLatency": "0 ms ± 0 ms"
+    },
+    {
+      "method": "LLM Judge Only",
+      "detectionRate": "67.5% ± 12.1%",
+      "falsePositiveRate": "10.0% ± 0.0%",
+      "humanReviewOverhead": "0.0% ± 0.0%",
+      "meanLatency": "1048 ms ± 12 ms"
+    },
+    {
+      "method": "Deterministic Rules Only",
+      "detectionRate": "50.0% ± 0.0%",
+      "falsePositiveRate": "3.0% ± 4.8%",
+      "humanReviewOverhead": "0.0% ± 0.0%",
+      "meanLatency": "5 ms ± 0 ms"
+    },
+    {
+      "method": "Proofrail Hybrid Multi-Grader",
+      "detectionRate": "100.0% ± 0.0%",
+      "falsePositiveRate": "0.0% ± 0.0%",
+      "humanReviewOverhead": "13.3% ± 0.0%",
+      "meanLatency": "59 ms ± 0 ms"
+    }
+  ],
+  "piiPerEntityTypeEvaluation": {
+    "overallPrecisionPct": 97.67,
+    "overallRecallPct": 85.14,
+    "overallF1Score": 0.9098,
+    "perEntityMetrics": [
       {
-        "method": "No evaluation (Baseline control)",
-        "totalEvaluated": 120,
-        "detectedViolations": 0,
-        "detectionRatePct": 0,
+        "entityType": "EMAIL",
+        "precision": "100%",
+        "recall": "94.29%",
+        "f1Score": 0.9706,
+        "truePositives": 33,
         "falsePositives": 0,
-        "falsePositiveRatePct": 0,
-        "humanReviewCount": 0,
-        "humanReviewPct": 0,
-        "meanLatencyMs": 0
+        "falseNegatives": 2
       },
       {
-        "method": "LLM Judge Only",
-        "totalEvaluated": 120,
-        "detectedViolations": 60,
-        "detectionRatePct": 74.6,
-        "falsePositives": 4,
-        "falsePositiveRatePct": 10.1,
-        "humanReviewCount": 0,
-        "humanReviewPct": 0,
-        "meanLatencyMs": 1048
-      },
-      {
-        "method": "Deterministic Rules Only",
-        "totalEvaluated": 120,
-        "detectedViolations": 40,
-        "detectionRatePct": 49.8,
+        "entityType": "PHONE",
+        "precision": "80%",
+        "recall": "26.67%",
+        "f1Score": 0.4,
+        "truePositives": 4,
         "falsePositives": 1,
-        "falsePositiveRatePct": 2.5,
-        "humanReviewCount": 0,
-        "humanReviewPct": 0,
-        "meanLatencyMs": 5
+        "falseNegatives": 11
       },
       {
-        "method": "Proofrail Hybrid Multi-Grader",
-        "totalEvaluated": 120,
-        "detectedViolations": 80,
-        "detectionRatePct": 99.5,
-        "falsePositives": 1,
-        "falsePositiveRatePct": 2.5,
-        "humanReviewCount": 16,
-        "humanReviewPct": 13.3,
-        "meanLatencyMs": 59
+        "entityType": "IP_ADDRESS",
+        "precision": "100%",
+        "recall": "86.67%",
+        "f1Score": 0.9286,
+        "truePositives": 13,
+        "falsePositives": 0,
+        "falseNegatives": 2
+      },
+      {
+        "entityType": "CREDIT_CARD",
+        "precision": "100%",
+        "recall": "96.97%",
+        "f1Score": 0.9846,
+        "truePositives": 32,
+        "falsePositives": 0,
+        "falseNegatives": 1
+      },
+      {
+        "entityType": "API_KEY",
+        "precision": "100%",
+        "recall": "86.67%",
+        "f1Score": 0.9286,
+        "truePositives": 13,
+        "falsePositives": 0,
+        "falseNegatives": 2
+      },
+      {
+        "entityType": "SSN",
+        "precision": "93.94%",
+        "recall": "88.57%",
+        "f1Score": 0.9118,
+        "truePositives": 31,
+        "falsePositives": 2,
+        "falseNegatives": 4
       }
     ]
-  },
-  "piiBenchmark": {
-    "totalTestCases": 100,
-    "truePositives": 59,
-    "falsePositives": 3,
-    "falseNegatives": 14,
-    "trueNegatives": 24,
-    "precisionPct": 95.16,
-    "recallPct": 80.82,
-    "f1Score": 0.8741,
-    "categoryBreakdown": {
-      "obvious_pii": {
-        "total": 20,
-        "tp": 20,
-        "fp": 0,
-        "fn": 0,
-        "tn": 0
-      },
-      "disguised_pii": {
-        "total": 20,
-        "tp": 6,
-        "fp": 0,
-        "fn": 14,
-        "tn": 0
-      },
-      "false_positive": {
-        "total": 20,
-        "tp": 0,
-        "fp": 3,
-        "fn": 0,
-        "tn": 17
-      },
-      "nested_json": {
-        "total": 15,
-        "tp": 8,
-        "fp": 0,
-        "fn": 0,
-        "tn": 7
-      },
-      "malformed_payload": {
-        "total": 15,
-        "tp": 15,
-        "fp": 0,
-        "fn": 0,
-        "tn": 0
-      },
-      "mixed_prose_json": {
-        "total": 10,
-        "tp": 10,
-        "fp": 0,
-        "fn": 0,
-        "tn": 0
-      }
-    }
   }
 }
